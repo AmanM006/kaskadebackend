@@ -3,8 +3,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
-app.use(cors({ origin: "https://amanm006.github.io" })); // Allow frontend
-app.use(cors());
+app.use(cors({
+    origin: "https://amanm006.github.io", // Allow GitHub Pages frontend
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"] // Allow custom headers
+}));
 app.use(express.json());
 const LoyaltyTrendsModel = require("./models/LoyaltyTrends.js"); // Adjust path as needed
 

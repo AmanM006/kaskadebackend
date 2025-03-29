@@ -2,15 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
 const app = express();
+app.use(cors({
+    origin: ["https://amanm006.github.io", "http://127.0.0.1:5500"], // ✅ Allow GitHub & Local
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
-app.use(
-    cors({
-        origin: "https://amanm006.github.io", // Allow frontend
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"]
-    })
-);
 const LoyaltyTrendsModel = require("./models/LoyaltyTrends.js"); // Adjust path as needed
 
 // Ensure MONGO_URI exists
@@ -72,8 +72,9 @@ app.use((req, res, next) => {
     next();
 });
 app.get("/", (req, res) => {
-    res.send("✅ Server is running!");
+    res.send("✅ Backend is running!");
 });
+
 
 app.get("/api/users", async (req, res) => {
     try {

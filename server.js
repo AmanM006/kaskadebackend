@@ -71,15 +71,10 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     next();
 });
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "https://amanm006.github.io");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    next();
+app.get("/", (req, res) => {
+    res.send("✅ Server is running!");
 });
-app.options("*", cors());
 
-// Fetch all users
 app.get("/api/users", async (req, res) => {
     try {
         const users = await fetchUsersFromDatabase();

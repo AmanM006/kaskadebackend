@@ -4,10 +4,12 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 app.use(cors({
-    origin: "https://amanm006.github.io", // Allow GitHub Pages frontend
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-    allowedHeaders: ["Content-Type", "Authorization"] // Allow custom headers
+    origin: "https://amanm006.github.io",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 }));
+
 app.use(express.json());
 const LoyaltyTrendsModel = require("./models/LoyaltyTrends.js"); // Adjust path as needed
 
@@ -62,7 +64,15 @@ async function fetchLoyaltyTrendsFromDatabase() {
 
 
 
-// API Endpoint to Fetch All Users
+// Middleware to set CORS headers
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "https://amanm006.github.io"); // Allow only your frontend
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+});
+
+// Fetch all users
 app.get("/api/users", async (req, res) => {
     try {
         const users = await fetchUsersFromDatabase();
@@ -74,12 +84,13 @@ app.get("/api/users", async (req, res) => {
     }
 });
 
+// Fetch analytics data
 app.get("/api/data", async (req, res) => {
     try {
         const users = await fetchUsersFromDatabase();
         console.log("✅ Users fetched:", users);
 
-        const totalUsers = users.length || 1; // ✅ Prevent division by zero
+        const totalUsers = users.length || 1; // Prevent division by zero
         const loyalCount = users.filter(u => u.loyaltyScore >= 80).length;
         const atRiskCount = users.filter(u => u.loyaltyScore < 30 && u.loyaltyScore > 10).length;
         const churnedCount = users.filter(u => u.loyaltyScore <= 10).length;
@@ -93,25 +104,22 @@ app.get("/api/data", async (req, res) => {
 
         console.log("📊 Calculated Customer Distribution:", customerDistribution);
 
-        // ✅ Dynamically Calculate Loyalty Trends
+        // Calculate Loyalty Trends
         const trendsMap = {};
-
         users.forEach(user => {
             const date = new Date(user.lastActivity);
             const year = date.getFullYear();
             const month = date.getMonth() + 1; // JS months are 0-based
-
             const key = `${year}-${month}`;
 
             if (!trendsMap[key]) {
                 trendsMap[key] = { totalScore: 0, count: 0 };
             }
-
             trendsMap[key].totalScore += user.loyaltyScore;
             trendsMap[key].count += 1;
         });
 
-        // ✅ Convert map to array
+        // Convert trends map to array
         const loyaltyTrends = Object.entries(trendsMap).map(([key, data]) => {
             const [year, month] = key.split("-");
             return {
@@ -133,9 +141,6 @@ app.get("/api/data", async (req, res) => {
         res.status(500).json({ error: "Server error", details: error.message });
     }
 });
-
-
-
 
 
 // Start Server

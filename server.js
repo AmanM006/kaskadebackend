@@ -3,14 +3,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
-app.use(cors({
-    origin: "https://amanm006.github.io",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
-}));
-
 app.use(express.json());
+app.use(
+    cors({
+        origin: "https://amanm006.github.io", // Allow frontend
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"]
+    })
+);
 const LoyaltyTrendsModel = require("./models/LoyaltyTrends.js"); // Adjust path as needed
 
 // Ensure MONGO_URI exists
@@ -71,6 +71,13 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     next();
 });
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "https://amanm006.github.io");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+});
+app.options("*", cors());
 
 // Fetch all users
 app.get("/api/users", async (req, res) => {
@@ -109,7 +116,7 @@ app.get("/api/data", async (req, res) => {
         users.forEach(user => {
             const date = new Date(user.lastActivity);
             const year = date.getFullYear();
-            const month = date.getMonth() + 1; // JS months are 0-based
+            const month = date.getMonth() + 1;
             const key = `${year}-${month}`;
 
             if (!trendsMap[key]) {
@@ -125,7 +132,7 @@ app.get("/api/data", async (req, res) => {
             return {
                 year: parseInt(year),
                 month: parseInt(month),
-                value: data.totalScore / data.count // Average loyalty score
+                value: data.totalScore / data.count
             };
         });
 

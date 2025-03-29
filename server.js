@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-app.use(cors({ origin: "https://amanm006.github.io" })); // Allow frontend
 const app = express();
+app.use(cors({ origin: "https://amanm006.github.io" })); // Allow frontend
 app.use(cors());
 app.use(express.json());
 const LoyaltyTrendsModel = require("./models/LoyaltyTrends.js"); // Adjust path as needed
